@@ -3,114 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Combustível Pro</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icone.png">
-    <meta name="theme-color" content="#27ae60">
+    <title>Combustível Pro v6.0</title>
     <style>
         :root {
-            --primary: #27ae60;
-            --secondary: #2980b9;
-            --bg: #121212;
-            --card: #1e1e1e;
-            --text: #ffffff;
-            --danger: #e74c3c;
-            --waze: #33ccff;
+            --primary: #27ae60; --secondary: #2980b9; --bg: #121212;
+            --card: #1e1e1e; --text: #ffffff; --danger: #e74c3c;
+            --waze: #33ccff; --ipiranga: #ffcc00; --shell: #fbce07; --petrobras: #008542;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--bg); color: var(--text);
+            display: flex; justify-content: center; align-items: flex-start;
+            min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box;
         }
 
         .app-card {
-            background: var(--card);
-            padding: 2rem;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
+            background: var(--card); padding: 1.5rem; border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); width: 100%; max-width: 380px; text-align: center;
         }
 
-        h1 { font-size: 1.4rem; margin-bottom: 1.5rem; font-weight: 800; color: #ddd; }
-
-        .input-container { margin-bottom: 1.2rem; text-align: left; }
-
-        label { display: block; margin-bottom: 6px; font-size: 0.75rem; letter-spacing: 1px; font-weight: bold; }
-        .label-etanol { color: var(--primary); }
-        .label-gasolina { color: var(--secondary); }
-        .label-regra { color: #888; }
+        h1 { font-size: 1.3rem; margin-bottom: 1.2rem; font-weight: 800; color: #ddd; }
+        .input-container { margin-bottom: 1rem; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px; }
+        .label-etanol { color: var(--primary); } .label-gasolina { color: var(--secondary); }
 
         input, select {
-            width: 100%;
-            padding: 15px;
-            background: #2c2c2c;
-            border: 2px solid #3d3d3d;
-            border-radius: 12px;
-            font-size: 1.6rem;
-            color: #fff;
-            text-align: center;
-            box-sizing: border-box;
-            outline: none;
-            transition: all 0.3s;
+            width: 100%; padding: 14px; background: #2c2c2c; border: 2px solid #3d3d3d;
+            border-radius: 12px; font-size: 1.5rem; color: #fff; text-align: center; box-sizing: border-box; outline: none;
         }
 
-        select { font-size: 1rem; cursor: pointer; appearance: none; }
+        select { font-size: 0.9rem; appearance: none; cursor: pointer; }
 
-        #etanol:focus { border-color: var(--primary); }
-        #gasolina:focus { border-color: var(--secondary); }
+        /* Botões Principais */
+        .button-group { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 10px; }
+        button { padding: 16px; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
+        .btn-calc { background: white; color: black; } .btn-clear { background: #333; color: var(--danger); }
+        button:active { transform: scale(0.95); }
 
-        .button-group {
-            display: grid;
-            grid-template-columns: 2.5fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
+        /* Botões de Bandeiras e GPS */
+        .brand-section { margin-top: 20px; text-align: left; }
+        .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+        
+        .btn-brand { font-size: 0.8rem; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; border-bottom: 3px solid rgba(0,0,0,0.2); }
+        
+        /* Cores Marcas */
+        .ipiranga { background: var(--ipiranga); color: #003399; }
+        .shell { background: var(--shell); color: #d20000; }
+        .petrobras { background: var(--petrobras); color: white; }
+        .gps-google { background: #fff; color: #5f6368; border: 1px solid #ddd; }
+        .gps-waze { background: var(--waze); color: #000; }
 
-        button {
-            padding: 18px;
-            border: none;
-            border-radius: 15px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .btn-calc { background: white; color: black; }
-        .btn-clear { background: #333; color: var(--danger); border: 1px solid #444; }
-
-        .maps-container {
-            margin-top: 15px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .btn-google { background: #222; color: #fff; font-size: 0.75rem; border: 1px solid #444; }
-        .btn-waze { background: #222; color: var(--waze); font-size: 0.75rem; border: 1px solid #444; }
-
-        #resultado {
-            margin-top: 1.5rem;
-            padding: 15px;
-            border-radius: 15px;
-            display: none;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        /* Resultado */
+        #resultado { margin-top: 1.2rem; padding: 15px; border-radius: 15px; display: none; animation: slideUp 0.3s ease; }
         .melhor-etanol { background: #1b4332; border: 1px solid var(--primary); color: #b7e4c7; }
         .melhor-gasolina { background: #1a3a5a; border: 1px solid var(--secondary); color: #a2d2ff; }
-        
-        .veredito-txt { font-size: 1.2rem; font-weight: bold; display: block; }
+
+        /* Histórico */
+        .historico-section { margin-top: 25px; text-align: left; border-top: 1px solid #333; padding-top: 15px; }
+        .historico-item { 
+            display: flex; justify-content: space-between; background: #252525; 
+            padding: 10px; border-radius: 8px; margin-bottom: 5px; font-size: 0.75rem; 
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -129,11 +84,11 @@
     </div>
 
     <div class="input-container">
-        <label class="label-regra">EFICIÊNCIA DO VEÍCULO</label>
-        <select id="regra">
-            <option value="0.70">70% (Motores Antigos)</option>
-            <option value="0.73" selected>73% (Motores Modernos)</option>
-            <option value="0.75">75% (Motores Turbo/Injeção Direta)</option>
+        <label style="color:#888">ANO DO VEÍCULO (RELEMBRADO)</label>
+        <select id="regra" onchange="salvarConfig()">
+            <option value="0.70">Até 2012 (Regra 70%)</option>
+            <option value="0.72">2013-2020 (Regra 72%)</option>
+            <option value="0.75" selected>2021+ ou Turbo (Regra 75%)</option>
         </select>
     </div>
 
@@ -142,23 +97,42 @@
         <button class="btn-clear" onclick="limpar()">LIMPAR</button>
     </div>
 
-    <div class="maps-container">
-        <button class="btn-google" onclick="abrirMapa('google')">📍 Maps</button>
-        <button class="btn-waze" onclick="abrirMapa('waze')">🚙 Waze</button>
+    <div class="brand-section">
+        <label style="color:#666">BUSCAR POR BANDEIRA / GPS</label>
+        <div class="grid-4">
+            <button class="btn-brand ipiranga" onclick="buscar('Posto Ipiranga')"><b>I</b> Ipiranga</button>
+            <button class="btn-brand shell" onclick="buscar('Posto Shell')"><b>S</b> Shell</button>
+            <button class="btn-brand petrobras" onclick="buscar('Posto Petrobras BR')"><b>BR</b> Petrobras</button>
+            <button class="btn-brand gps-waze" onclick="buscar('Posto de Gasolina', 'waze')"><b>🚙</b> Waze</button>
+            <button class="btn-brand gps-google" style="grid-column: span 2;" onclick="buscar('Posto de Gasolina', 'google')"><b>G</b> Google Maps</button>
+        </div>
     </div>
 
     <div id="resultado">
-        <span class="veredito-txt" id="veredito"></span>
-        <span id="detalhe" style="font-size: 0.8rem; opacity: 0.9;"></span>
+        <span id="veredito" style="font-weight:bold; display:block; font-size: 1.2rem;"></span>
+        <span id="detalhe" style="font-size:0.8rem"></span>
+    </div>
+
+    <div class="historico-section">
+        <label style="color:#666">ÚLTIMOS ABASTECIMENTOS</label>
+        <div id="lista-historico"></div>
     </div>
 </div>
 
 <script>
+    window.onload = function() {
+        const salva = localStorage.getItem('regraComb');
+        if (salva) document.getElementById('regra').value = salva;
+        mostrarHistorico();
+    };
+
+    function salvarConfig() { localStorage.setItem('regraComb', document.getElementById('regra').value); }
+
     function mascaraMoeda(campo) {
-        let valor = campo.value.replace(/\D/g, "");
-        if (valor.length === 0) { campo.value = ""; return; }
-        valor = (parseFloat(valor) / 100).toFixed(2);
-        campo.value = valor.replace(".", ",");
+        let v = campo.value.replace(/\D/g, "");
+        if (v.length === 0) { campo.value = ""; return; }
+        v = (parseFloat(v) / 100).toFixed(2);
+        campo.value = v.replace(".", ",");
     }
 
     function limpar() {
@@ -168,12 +142,12 @@
         document.getElementById('etanol').focus();
     }
 
-    function abrirMapa(tipo) {
-        const busca = "posto de gasolina";
-        if (tipo === 'google') {
-            window.open(`https://www.google.com/maps/search/${busca}`, '_blank');
+    function buscar(m, tipo) {
+        const query = encodeURIComponent(m);
+        if (tipo === 'waze') {
+            window.open(`waze://?q=${query}&navigate=yes`, '_blank');
         } else {
-            window.open(`waze://?q=${busca}&navigate=yes`, '_blank');
+            window.open(`https://www.google.com/maps/search/${query}`, '_blank');
         }
     }
 
@@ -182,27 +156,51 @@
         const gVal = document.getElementById('gasolina').value.replace(",", ".");
         const regra = parseFloat(document.getElementById('regra').value);
         
-        const pE = parseFloat(eVal);
-        const pG = parseFloat(gVal);
-        const resDiv = document.getElementById('resultado');
+        if (!eVal || eVal === "0.00" || !gVal || gVal === "0.00") return alert("Insira os preços!");
 
-        if (pE > 0 && pG > 0) {
-            const rel = pE / pG;
-            resDiv.style.display = 'block';
-            
-            if (rel <= regra) {
-                resDiv.className = 'melhor-etanol';
-                document.getElementById('veredito').innerText = "Abasteça com ETANOL! 🌿";
-            } else {
-                resDiv.className = 'melhor-gasolina';
-                document.getElementById('veredito').innerText = "Abasteça com GASOLINA! ⛽";
-            }
-            document.getElementById('detalhe').innerText = `Relação: ${(rel * 100).toFixed(1)}% (Base: ${(regra * 100).toFixed(0)}%)`;
+        const rel = parseFloat(eVal) / parseFloat(gVal);
+        const resDiv = document.getElementById('resultado');
+        resDiv.style.display = 'block';
+
+        let escolha = "";
+        if (rel <= regra) {
+            resDiv.className = 'melhor-etanol';
+            document.getElementById('veredito').innerText = "Vá de ETANOL! 🌿";
+            escolha = "Etanol";
         } else {
-            alert("Introduza os preços!");
+            resDiv.className = 'melhor-gasolina';
+            document.getElementById('veredito').innerText = "Vá de GASOLINA! ⛽";
+            escolha = "Gasolina";
         }
+        document.getElementById('detalhe').innerText = `Relação: ${(rel * 100).toFixed(1)}% (Ref: ${(regra * 100).toFixed(0)}%)`;
+        
+        salvarNoHistorico(escolha, eVal, gVal);
+    }
+
+    function salvarNoHistorico(escolha, e, g) {
+        let hist = JSON.parse(localStorage.getItem('histComb') || "[]");
+        const novo = {
+            data: new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}),
+            escolha: escolha,
+            precos: `E:${e} | G:${g}`
+        };
+        hist.unshift(novo);
+        hist = hist.slice(0, 3); // Mantém os 3 últimos para não poluir
+        localStorage.setItem('histComb', JSON.stringify(hist));
+        mostrarHistorico();
+    }
+
+    function mostrarHistorico() {
+        const hist = JSON.parse(localStorage.getItem('histComb') || "[]");
+        const container = document.getElementById('lista-historico');
+        container.innerHTML = hist.map(item => `
+            <div class="historico-item">
+                <span style="color:#888">${item.data}</span>
+                <span style="font-weight:bold">${item.escolha}</span>
+                <span style="color:#666">${item.precos}</span>
+            </div>
+        `).join('');
     }
 </script>
-
 </body>
 </html>
