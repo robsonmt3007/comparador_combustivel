@@ -15,6 +15,7 @@
             --card: #1e1e1e;
             --text: #ffffff;
             --danger: #e74c3c;
+            --waze: #33ccff;
         }
 
         body {
@@ -40,19 +41,9 @@
 
         h1 { font-size: 1.5rem; margin-bottom: 2rem; font-weight: 800; color: #ddd; }
 
-        .input-container {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
+        .input-container { margin-bottom: 1.5rem; text-align: left; }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            font-weight: bold;
-        }
-
+        label { display: block; margin-bottom: 8px; font-size: 0.8rem; letter-spacing: 1px; font-weight: bold; }
         .label-etanol { color: var(--primary); }
         .label-gasolina { color: var(--secondary); }
 
@@ -67,16 +58,11 @@
             text-align: center;
             box-sizing: border-box;
             outline: none;
-            transition: all 0.3s;
         }
 
-        #etanol:focus { border-color: var(--primary); }
-        #gasolina:focus { border-color: var(--secondary); }
-
-        /* Grade de botões */
         .button-group {
             display: grid;
-            grid-template-columns: 2fr 1fr; /* Calcular maior que o Limpar */
+            grid-template-columns: 2fr 1fr;
             gap: 10px;
             margin-top: 10px;
         }
@@ -94,26 +80,28 @@
         .btn-calc { background: white; color: black; }
         .btn-clear { background: #333; color: var(--danger); border: 1px solid #444; }
 
-        button:active { transform: scale(0.95); }
+        /* Botões de Mapas */
+        .maps-container {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-google { background: #444; color: #fff; font-size: 0.8rem; border: 1px solid #555; }
+        .btn-waze { background: #444; color: var(--waze); font-size: 0.8rem; border: 1px solid #555; }
 
         #resultado {
             margin-top: 1.8rem;
             padding: 20px;
             border-radius: 15px;
             display: none;
-            animation: slideUp 0.4s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .melhor-etanol { background: #1b4332; border: 2px solid var(--primary); color: #b7e4c7; }
         .melhor-gasolina { background: #1a3a5a; border: 2px solid var(--secondary); color: #a2d2ff; }
         
         .veredito-txt { font-size: 1.3rem; font-weight: bold; display: block; }
-        .info-txt { font-size: 0.85rem; opacity: 0.9; margin-top: 5px; display: block; }
     </style>
 </head>
 <body>
@@ -136,19 +124,21 @@
         <button class="btn-clear" onclick="limpar()">LIMPAR</button>
     </div>
 
+    <div class="maps-container">
+        <button class="btn-google" onclick="abrirMapa('google')">📍 Google Maps</button>
+        <button class="btn-waze" onclick="abrirMapa('waze')">🚙 Waze</button>
+    </div>
+
     <div id="resultado">
         <span class="veredito-txt" id="veredito"></span>
-        <span class="info-txt" id="detalhe"></span>
+        <span id="detalhe" style="font-size: 0.85rem; opacity: 0.9;"></span>
     </div>
 </div>
 
 <script>
     function mascaraMoeda(campo) {
         let valor = campo.value.replace(/\D/g, "");
-        if (valor.length === 0) {
-            campo.value = "";
-            return;
-        }
+        if (valor.length === 0) { campo.value = ""; return; }
         valor = (parseFloat(valor) / 100).toFixed(2);
         campo.value = valor.replace(".", ",");
     }
@@ -160,32 +150,38 @@
         document.getElementById('etanol').focus();
     }
 
+    function abrirMapa(tipo) {
+        const busca = "posto de gasolina";
+        if (tipo === 'google') {
+            window.open(`https://www.google.com/maps/search/${busca}`, '_blank');
+        } else {
+            window.open(`waze://?q=${busca}&navigate=yes`, '_blank');
+        }
+    }
+
     function calcular() {
-        const etanolVal = document.getElementById('etanol').value.replace(",", ".");
-        const gasolinaVal = document.getElementById('gasolina').value.replace(",", ".");
-        
-        const pEtanol = parseFloat(etanolVal);
-        const pGasolina = parseFloat(gasolinaVal);
+        const eVal = document.getElementById('etanol').value.replace(",", ".");
+        const gVal = document.getElementById('gasolina').value.replace(",", ".");
+        const pE = parseFloat(eVal);
+        const pG = parseFloat(gVal);
         const resDiv = document.getElementById('resultado');
 
-        if (pEtanol > 0 && pGasolina > 0) {
-            const relacao = pEtanol / pGasolina;
+        if (pE > 0 && pG > 0) {
+            const rel = pE / pG;
             resDiv.style.display = 'block';
-
-            if (relacao <= 0.70) {
+            if (rel <= 0.70) {
                 resDiv.className = 'melhor-etanol';
-                document.getElementById('veredito').innerText = "Vá de ETANOL! 🌿";
+                document.getElementById('veredito').innerText = "Abasteça com ETANOL! 🌿";
             } else {
                 resDiv.className = 'melhor-gasolina';
-                document.getElementById('veredito').innerText = "Vá de GASOLINA! ⛽";
+                document.getElementById('veredito').innerText = "Abasteça com GASOLINA! ⛽";
             }
-            document.getElementById('detalhe').innerText = `O etanol custa ${(relacao * 100).toFixed(1)}% da gasolina`;
+            document.getElementById('detalhe').innerText = `Relação: ${(rel * 100).toFixed(1)}%`;
         } else {
-            alert("Por favor, preencha os valores.");
+            alert("Introduza os preços!");
         }
     }
 </script>
 
 </body>
 </html>
-
