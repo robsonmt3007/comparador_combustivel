@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Combustível Pro v10.0</title>
+    <title>Combustível Pro v13.0</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
@@ -21,14 +21,11 @@
         .app-card {
             background: var(--card); padding: 1.5rem; border-radius: 30px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5); width: 100%; max-width: 380px; text-align: center;
-            position: relative;
         }
 
-        /* Status da Conexão (Não clicável) */
         #status-conexao {
-            font-size: 0.6rem; font-weight: bold; letter-spacing: 1px;
-            padding: 4px 12px; border-radius: 20px; margin-bottom: 15px;
-            display: inline-block; transition: all 0.3s;
+            font-size: 0.6rem; font-weight: bold; padding: 4px 12px; border-radius: 20px; 
+            margin-bottom: 15px; display: inline-block;
         }
         .online { background: rgba(39, 174, 96, 0.2); color: var(--primary); }
         .offline { background: rgba(231, 76, 60, 0.2); color: var(--danger); }
@@ -36,20 +33,18 @@
         h1 { font-size: 1.3rem; margin-bottom: 1.2rem; font-weight: 800; color: #ddd; }
         .input-container { margin-bottom: 1rem; text-align: left; }
         label { display: block; margin-bottom: 5px; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px; }
-        .label-etanol { color: var(--primary); } .label-gasolina { color: var(--secondary); }
-
+        
         input, select {
             width: 100%; padding: 14px; background: #2c2c2c; border: 2px solid #3d3d3d;
             border-radius: 12px; font-size: 1.5rem; color: #fff; text-align: center; box-sizing: border-box; outline: none;
         }
-
-        select { font-size: 0.9rem; appearance: none; cursor: pointer; color: #aaa; }
 
         .button-group { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 10px; }
         button { padding: 16px; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
         .btn-calc { background: white; color: black; } .btn-clear { background: #333; color: var(--danger); }
         button:active { transform: scale(0.95); }
 
+        /* Estilo dos Botões de Logos */
         .brand-section { margin-top: 25px; text-align: left; }
         .grid-brands { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
         .grid-gps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
@@ -57,14 +52,16 @@
         .btn-brand-logo { 
             background: #ffffff; border-radius: 12px; padding: 8px;
             display: flex; align-items: center; justify-content: center;
-            height: 50px; border: none;
+            height: 55px; border: none; overflow: hidden;
         }
         .btn-brand-logo img { max-width: 90%; max-height: 90%; object-fit: contain; }
         .btn-waze { background: #33ccff; }
 
+        /* Resultado e Info */
         #resultado { margin-top: 1.2rem; padding: 15px; border-radius: 15px; display: none; animation: slideUp 0.3s ease; }
         .melhor-etanol { background: #1b4332; border: 1px solid var(--primary); color: #b7e4c7; }
         .melhor-gasolina { background: #1a3a5a; border: 1px solid var(--secondary); color: #a2d2ff; }
+        #litros-info { font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 8px; padding-top: 8px; line-height: 1.4; }
 
         .historico-section { margin-top: 25px; text-align: left; border-top: 1px solid #333; padding-top: 15px; }
         .historico-item { 
@@ -78,22 +75,21 @@
 
 <div class="app-card">
     <div id="status-conexao" class="online">● SISTEMA ONLINE</div>
-
     <h1>⛽ Gasolina ou Etanol?</h1>
     
     <div class="input-container">
-        <label class="label-etanol">PREÇO ETANOL</label>
+        <label style="color:var(--primary)">PREÇO ETANOL</label>
         <input type="text" id="etanol" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)">
     </div>
 
     <div class="input-container">
-        <label class="label-gasolina">PREÇO GASOLINA</label>
+        <label style="color:var(--secondary)">PREÇO GASOLINA</label>
         <input type="text" id="gasolina" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)">
     </div>
 
     <div class="input-container">
-        <label style="color:#888">VALOR PARA ABASTECER (R$)</label>
-        <input type="text" id="valorAbast" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)">
+        <label style="color:#888">QUANTO VAI ABASTECER? (R$)</label>
+        <input type="text" id="valorAbast" placeholder="100,00" inputmode="numeric" oninput="mascaraMoeda(this)">
     </div>
 
     <div class="input-container">
@@ -112,39 +108,39 @@
 
     <div id="resultado">
         <span id="veredito" style="font-weight:bold; display:block; font-size: 1.1rem;"></span>
-        <span id="detalhe" style="font-size:0.8rem; display:block; margin-bottom:8px;"></span>
-        <div id="litros-info" style="font-size:0.8rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px; line-height:1.4"></div>
+        <span id="detalhe" style="font-size:0.8rem; display:block; margin-bottom:5px;"></span>
+        <div id="litros-info"></div>
+    </div>
+
+    <div class="brand-section">
+        <label style="color:#666">POSTOS POR BANDEIRA</label>
+        <div class="grid-brands">
+            <button class="btn-brand-logo" onclick="buscar('Posto Ipiranga')">
+                <img src="ipiranga.png" alt="Ipiranga">
+            </button>
+            <button class="btn-brand-logo" onclick="buscar('Posto Shell')">
+                <img src="shell.png" alt="Shell">
+            </button>
+            <button class="btn-brand-logo" onclick="buscar('Posto Petrobras BR')">
+                <img src="br.png" alt="BR">
+            </button>
+        </div>
     </div>
 
     <div class="brand-section">
         <label style="color:#666">ABRIR NO GPS</label>
         <div class="grid-gps">
             <button class="btn-brand-logo" onclick="buscar('Posto', 'google')">
-                <img src="https://www.google.com/images/branding/product/2x/maps_96dp.png" alt="Google Maps">
+                <img src="maps.png" alt="Maps">
             </button>
             <button class="btn-brand-logo btn-waze" onclick="buscar('Posto', 'waze')">
-                <img src="https://cdn.icon-icons.com/icons2/2108/PNG/512/waze_icon_130807.png" alt="Waze">
-            </button>
-        </div>
-    </div>
-
-    <div class="brand-section">
-        <label style="color:#666">BUSCAR BANDEIRA</label>
-        <div class="grid-brands">
-            <button class="btn-brand-logo" onclick="buscar('Posto Ipiranga')">
-                <img src="https://upload.wikimedia.org/wikipedia/pt/4/4b/Ipiranga_Logo.png" alt="Ipiranga">
-            </button>
-            <button class="btn-brand-logo" onclick="buscar('Posto Shell')">
-                <img src="https://upload.wikimedia.org/wikipedia/pt/thumb/e/e8/Shell_logo.svg/1200px-Shell_logo.svg.png" alt="Shell">
-            </button>
-            <button class="btn-brand-logo" onclick="buscar('Posto Petrobras BR')">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Logo_Petrobras_BR.png" alt="BR">
+                <img src="waze.png" alt="Waze">
             </button>
         </div>
     </div>
 
     <div class="historico-section">
-        <label style="color:#666">ÚLTIMOS ABASTECIMENTOS</label>
+        <label style="color:#666">HISTÓRICO RECENTE</label>
         <div id="lista-historico"></div>
     </div>
 </div>
@@ -153,19 +149,13 @@
     // Monitor de Conexão
     window.addEventListener('online', atualizarStatus);
     window.addEventListener('offline', atualizarStatus);
-
     function atualizarStatus() {
-        const status = document.getElementById('status-conexao');
-        if (navigator.onLine) {
-            status.innerText = "● SISTEMA ONLINE";
-            status.className = "online";
-        } else {
-            status.innerText = "○ MODO OFFLINE";
-            status.className = "offline";
-        }
+        const s = document.getElementById('status-conexao');
+        s.innerText = navigator.onLine ? "● SISTEMA ONLINE" : "○ MODO OFFLINE";
+        s.className = navigator.onLine ? "online" : "offline";
     }
 
-    window.onload = function() {
+    window.onload = () => {
         const salva = localStorage.getItem('regraComb');
         if (salva) document.getElementById('regra').value = salva;
         mostrarHistorico();
@@ -173,12 +163,11 @@
     };
 
     function salvarConfig() { localStorage.setItem('regraComb', document.getElementById('regra').value); }
-
-    function mascaraMoeda(campo) {
-        let v = campo.value.replace(/\D/g, "");
-        if (v.length === 0) { campo.value = ""; return; }
-        v = (parseFloat(v) / 100).toFixed(2);
-        campo.value = v.replace(".", ",");
+    
+    function mascaraMoeda(c) {
+        let v = c.value.replace(/\D/g, "");
+        if (v.length === 0) { c.value = ""; return; }
+        c.value = (parseFloat(v) / 100).toFixed(2).replace(".", ",");
     }
 
     function limpar() {
@@ -188,73 +177,56 @@
         document.getElementById('resultado').style.display = "none";
     }
 
-    function buscar(m, tipo) {
-        const query = encodeURIComponent(m);
-        if (tipo === 'waze') {
-            window.location.href = `waze://?q=${query}&navigate=yes`;
-        } else {
-            window.open(`https://www.google.com/maps/search/${query}`, '_blank');
-        }
+    function buscar(m, t) {
+        const q = encodeURIComponent(m);
+        t === 'waze' ? window.location.href = `waze://?q=${q}&navigate=yes` : window.open(`https://www.google.com/maps/search/${q}`, '_blank');
     }
 
     function calcular() {
-        const eVal = document.getElementById('etanol').value.replace(",", ".");
-        const gVal = document.getElementById('gasolina').value.replace(",", ".");
-        const vAbast = document.getElementById('valorAbast').value.replace(",", ".") || 0;
-        const regra = parseFloat(document.getElementById('regra').value);
+        const e = parseFloat(document.getElementById('etanol').value.replace(",", "."));
+        const g = parseFloat(document.getElementById('gasolina').value.replace(",", "."));
+        const v = parseFloat(document.getElementById('valorAbast').value.replace(",", ".")) || 0;
+        const r = parseFloat(document.getElementById('regra').value);
         
-        if (!eVal || !gVal || eVal === "0.00" || gVal === "0.00") return alert("Insira os preços!");
+        if (!e || !g) return alert("Insira os preços!");
 
-        const pE = parseFloat(eVal);
-        const pG = parseFloat(gVal);
-        const pV = parseFloat(vAbast);
-        const rel = pE / pG;
+        const rel = e / g;
         const resDiv = document.getElementById('resultado');
         resDiv.style.display = 'block';
 
-        let escolha = (rel <= regra) ? "Etanol" : "Gasolina";
-        resDiv.className = (escolha === "Etanol") ? 'melhor-etanol' : 'melhor-gasolina';
-        document.getElementById('veredito').innerText = "Vá de " + escolha.toUpperCase() + "!";
-        document.getElementById('detalhe').innerText = `Relação: ${(rel * 100).toFixed(1)}% (Ref: ${(regra * 100).toFixed(0)}%)`;
+        const escolha = rel <= r ? "Etanol" : "Gasolina";
+        resDiv.className = escolha === "Etanol" ? 'melhor-etanol' : 'melhor-gasolina';
+        document.getElementById('veredito').innerText = `Vá de ${escolha.toUpperCase()}!`;
+        document.getElementById('detalhe').innerText = `Relação: ${(rel * 100).toFixed(1)}% (Base: ${(r * 100).toFixed(0)}%)`;
         
-        // Info de Litros
-        if (pV > 0) {
-            const lE = (pV / pE).toFixed(2);
-            const lG = (pV / pG).toFixed(2);
-            const diff = Math.abs(lE - lG).toFixed(2);
-            document.getElementById('litros-info').innerHTML = 
-                `Com R$ ${pV.toFixed(2)} você coloca:<br><b>${lE}L</b> de Etanol ou <b>${lG}L</b> de Gasolina.<br>` +
-                `<small>Diferença de ${diff}L no tanque.</small>`;
+        if (v > 0) {
+            const lE = (v/e).toFixed(2);
+            const lG = (v/g).toFixed(2);
+            document.getElementById('litros-info').innerHTML = `Com R$ ${v.toFixed(2)} você coloca:<br><b>${lE}L</b> de Etanol ou <b>${lG}L</b> de Gasolina.`;
         } else {
             document.getElementById('litros-info').innerHTML = "";
         }
 
-        salvarNoHistorico(escolha, eVal, gVal);
+        salvarNoHistorico(escolha, e, g);
     }
 
-    function salvarNoHistorico(escolha, e, g) {
-        let hist = JSON.parse(localStorage.getItem('histComb') || "[]");
-        hist.unshift({
-            data: new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}),
-            escolha: escolha,
-            precos: `E:${e} | G:${g}`
-        });
-        localStorage.setItem('histComb', JSON.stringify(hist.slice(0, 3)));
+    function salvarNoHistorico(esc, e, g) {
+        let h = JSON.parse(localStorage.getItem('histComb') || "[]");
+        h.unshift({ data: new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}), escolha: esc, precos: `E:${e} | G:${g}` });
+        localStorage.setItem('histComb', JSON.stringify(h.slice(0, 3)));
         mostrarHistorico();
     }
 
     function mostrarHistorico() {
-        const hist = JSON.parse(localStorage.getItem('histComb') || "[]");
-        document.getElementById('lista-historico').innerHTML = hist.map(item => `
+        const h = JSON.parse(localStorage.getItem('histComb') || "[]");
+        document.getElementById('lista-historico').innerHTML = h.map(i => `
             <div class="historico-item">
-                <span style="color:#888">${item.data}</span>
-                <span style="font-weight:bold">${item.escolha}</span>
-                <span style="color:#666">${item.precos}</span>
+                <span style="color:#888">${i.data}</span>
+                <span style="font-weight:bold">${i.escolha}</span>
+                <span>${i.precos}</span>
             </div>
         `).join('');
     }
 </script>
 </body>
 </html>
-
-
