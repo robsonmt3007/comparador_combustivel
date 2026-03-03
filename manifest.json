@@ -1,15 +1,16 @@
 {
-  "name": "Combustível Pro",
-  "short_name": "Gas ou Etanol",
+  "name": "Comparador de Combustível",
+  "short_name": "CombustPro",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#27ae60",
+  "background_color": "#121212",
+  "theme_color": "#121212",
   "icons": [
     {
-      "src": "icone.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/483/483497.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
