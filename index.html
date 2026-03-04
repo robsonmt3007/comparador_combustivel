@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Combustível Pro v25.0</title>
+    <title>Combustível Pro v26.1</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
@@ -73,11 +73,14 @@
         .gps-size { width: 100px; height: 100px; }
         .posto-size { width: 75px; height: 75px; }
 
-        #resultado { margin-top: 1.2rem; padding: 15px; border-radius: 18px; display: none; animation: slideUp 0.4s ease; }
+        #resultado { 
+            margin-top: 1.2rem; padding: 20px; border-radius: 18px; 
+            display: none; animation: slideUp 0.4s ease; color: #fff;
+        }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .melhor-etanol { background: #1b4332; border: 1px solid var(--primary); color: #b7e4c7; }
-        .melhor-gasolina { background: #1a3a5a; border: 1px solid var(--secondary); color: #a2d2ff; }
+        .melhor-etanol { background: #1b4332; border: 2px solid var(--primary); }
+        .melhor-gasolina { background: #1a3a5a; border: 2px solid var(--secondary); }
 
         .historico-header { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; border-top: 1px solid #333; padding-top: 15px; }
         .btn-delete-hist { background: transparent; color: #555; font-size: 1.1rem; border: none; cursor: pointer; }
@@ -124,8 +127,8 @@
     </form>
 
     <div id="resultado">
-        <span id="veredito" style="font-weight:900; display:block; font-size: 1.2rem;"></span>
-        <span id="detalhe" style="font-size:0.8rem; display:block;"></span>
+        <span id="veredito" style="font-weight:900; display:block; font-size: 1.1rem; text-transform:uppercase;"></span>
+        <span id="detalhe" style="font-size:0.8rem; display:block; opacity: 0.9;"></span>
         <div id="litros-info" style="font-size:0.8rem; border-top:1px solid rgba(255,255,255,0.1); margin-top:8px; padding-top:8px;"></div>
     </div>
 
@@ -174,22 +177,16 @@
     }
 
     function buscar(m, t) {
-        // AJUSTE CRÍTICO: "Posto de Gasolina" é o termo que o Google NÃO confunde com saúde.
         let termoFinal = m;
-        if (!m.includes("Gasolina")) {
-            termoFinal = m + " Gasolina";
-        }
-        
+        if (!m.includes("Gasolina")) { termoFinal = m + " Gasolina"; }
         const q = encodeURIComponent(termoFinal);
         if (t === 'waze') {
             window.location.href = `waze://?q=${q}&navigate=yes`;
         } else {
-            // URL que força a visualização de estabelecimentos comerciais
             window.open(`https://www.google.com/maps/search/${q}`, '_blank');
         }
     }
 
-    // INTERFACE E CÁLCULO
     function atualizarStatus() {
         const s = document.getElementById('status-conexao');
         s.innerText = navigator.onLine ? "● SISTEMA ONLINE" : "○ MODO OFFLINE";
@@ -223,12 +220,18 @@
         const rel = e / g;
         const resDiv = document.getElementById('resultado');
         resDiv.style.display = 'block';
+
         const escolha = rel <= r ? "Etanol" : "Gasolina";
         resDiv.className = escolha === "Etanol" ? 'melhor-etanol' : 'melhor-gasolina';
-        document.getElementById('veredito').innerText = `Vá de ${escolha.toUpperCase()}!`;
+
+        // ALTERAÇÃO AQUI: Texto alterado conforme solicitado
+        document.getElementById('veredito').innerText = `Abastecer com ${escolha}`;
+        
         document.getElementById('detalhe').innerText = `Relação: ${(rel * 100).toFixed(1)}%`;
         if (v > 0) {
             document.getElementById('litros-info').innerHTML = `R$ ${v.toFixed(2)} rende:<br><b>${(v/e).toFixed(2)}L</b> de Etanol ou <b>${(v/g).toFixed(2)}L</b> de Gasolina`;
+        } else {
+            document.getElementById('litros-info').innerHTML = "";
         }
         salvarNoHistorico(escolha, e, g);
     }
