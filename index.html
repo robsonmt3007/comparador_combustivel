@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -26,18 +26,20 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.6); width: 100%; max-width: 380px; text-align: center;
         }
 
+        /* Estilo do Status de Conexão */
         #status-conexao {
-            font-size: 0.6rem; font-weight: bold; padding: 4px 12px; border-radius: 20px; 
-            margin-bottom: 10px; display: inline-block; transition: all 0.3s;
+            font-size: 0.65rem; font-weight: bold; padding: 6px 14px; border-radius: 20px; 
+            margin-bottom: 12px; display: inline-block; transition: all 0.4s ease;
+            text-transform: uppercase; letter-spacing: 1px;
         }
-        .online { background: rgba(39, 174, 96, 0.15); color: var(--primary); }
-        .offline { background: rgba(231, 76, 60, 0.15); color: var(--danger); }
+        .online { background: rgba(39, 174, 96, 0.2); color: var(--primary); border: 1px solid var(--primary); }
+        .offline { background: rgba(231, 76, 60, 0.2); color: var(--danger); border: 1px solid var(--danger); }
 
         h1 { font-size: 1.1rem; margin-bottom: 1.2rem; font-weight: 800; color: #eee; }
         .input-container { margin-bottom: 0.8rem; text-align: left; }
         label { display: block; margin-bottom: 4px; font-size: 0.65rem; font-weight: bold; opacity: 0.7; }
         
-        /* Polimento: Font-size 16px evita zoom automático no iOS */
+        /* Prevenção de Zoom no iOS (font-size 16px) */
         input, select {
             width: 100%; padding: 12px; background: var(--input-bg); border: 2px solid #3d3d3d;
             border-radius: 14px; font-size: 16px; color: #fff; text-align: center; box-sizing: border-box; outline: none;
@@ -66,7 +68,7 @@
         .gps-size { width: 100px; height: 100px; }
         .posto-size { width: 75px; height: 75px; }
 
-        /* Polimento: Transição suave de cores no resultado */
+        /* Resultado com Transição Suave */
         #resultado { 
             margin-top: 1.2rem; padding: 20px; border-radius: 18px; 
             display: none; animation: slideUp 0.4s ease; color: #fff;
@@ -85,7 +87,7 @@
 <body>
 
 <div class="app-card">
-    <div id="status-conexao" class="online">● SISTEMA ONLINE</div>
+    <div id="status-conexao">VERIFICANDO...</div>
     <h1>⛽ Gasolina ou Etanol?</h1>
     
     <form id="calcForm" onsubmit="event.preventDefault(); calcular();">
@@ -141,12 +143,34 @@
 </div>
 
 <script>
-    // Registro do Service Worker para Offline
+    // Registro do Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').then(reg => console.log('SW ativo!'));
+            navigator.serviceWorker.register('sw.js').then(reg => console.log('SW ok'));
         });
     }
+
+    // Lógica de Status Online/Offline Corrigida
+    function atualizarStatus() {
+        const s = document.getElementById('status-conexao');
+        if (navigator.onLine) {
+            s.innerText = "● SISTEMA ONLINE";
+            s.className = "online";
+        } else {
+            s.innerText = "○ MODO OFFLINE";
+            s.className = "offline";
+        }
+    }
+
+    window.addEventListener('online', atualizarStatus);
+    window.addEventListener('offline', atualizarStatus);
+
+    window.onload = () => {
+        atualizarStatus(); // Verifica no carregamento
+        const salva = localStorage.getItem('regraComb');
+        if (salva) document.getElementById('regra').value = salva;
+        mostrarHistorico();
+    };
 
     function verificarGps(destino, tipo) {
         if ("geolocation" in navigator) {
@@ -162,21 +186,6 @@
             window.open(`https://www.google.com/maps/search/${q}`, '_blank');
         }
     }
-
-    function atualizarStatus() {
-        const s = document.getElementById('status-conexao');
-        s.innerText = navigator.onLine ? "● SISTEMA ONLINE" : "○ MODO OFFLINE";
-        s.className = navigator.onLine ? "online" : "offline";
-    }
-    window.addEventListener('online', atualizarStatus);
-    window.addEventListener('offline', atualizarStatus);
-
-    window.onload = () => {
-        const salva = localStorage.getItem('regraComb');
-        if (salva) document.getElementById('regra').value = salva;
-        mostrarHistorico();
-        atualizarStatus();
-    };
 
     function mascaraMoeda(c) {
         let v = c.value.replace(/\D/g, "");
@@ -220,3 +229,4 @@
 </script>
 </body>
 </html>
+    
