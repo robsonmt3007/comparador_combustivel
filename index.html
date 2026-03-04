@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Combustível Pro v22.0</title>
+    <title>Combustível Pro v23.0</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
@@ -25,9 +25,16 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.6); width: 100%; max-width: 380px; text-align: center;
         }
 
+        /* Alerta de GPS */
+        #gps-alert {
+            display: none; background: rgba(231, 76, 60, 0.2); color: #ff7675;
+            font-size: 0.7rem; padding: 10px; border-radius: 12px; margin-bottom: 15px;
+            border: 1px solid var(--danger);
+        }
+
         #status-conexao {
             font-size: 0.6rem; font-weight: bold; padding: 4px 12px; border-radius: 20px; 
-            margin-bottom: 15px; display: inline-block;
+            margin-bottom: 10px; display: inline-block;
         }
         .online { background: rgba(39, 174, 96, 0.15); color: var(--primary); }
         .offline { background: rgba(231, 76, 60, 0.15); color: var(--danger); }
@@ -48,7 +55,7 @@
         .btn-clear { background: #333; color: var(--danger); }
         button:active { transform: scale(0.96); }
 
-        .brand-section { margin-top: 30px; }
+        .brand-section { margin-top: 25px; }
         .section-label { 
             display: flex; align-items: center; justify-content: center;
             font-size: 0.65rem; color: #888; font-weight: 800; 
@@ -58,26 +65,14 @@
             content: ""; flex: 1; height: 1px; background: #333; margin: 0 10px;
         }
         
-        .grid-icons { 
-            display: flex; justify-content: space-around; align-items: center; 
-            gap: 10px; flex-wrap: wrap; padding: 5px 0;
-        }
+        .grid-icons { display: flex; justify-content: space-around; align-items: center; gap: 10px; padding: 5px 0; }
         
-        /* Botões Base */
-        .btn-icon-base { 
-            background: transparent; border: none; padding: 0;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: transform 0.1s;
-        }
+        .btn-icon-base { background: transparent; border: none; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s; }
         .btn-icon-base:active { transform: scale(0.9); }
-        .btn-icon-base img { 
-            width: 100%; height: 100%; object-fit: contain; 
-            filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
-        }
+        .btn-icon-base img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5)); }
 
-        /* Tamanhos Específicos */
-        .gps-size { width: 100px; height: 100px; }
-        .posto-size { width: 75px; height: 75px; }
+        .gps-size { width: 90px; height: 90px; }
+        .posto-size { width: 70px; height: 70px; }
 
         #resultado { margin-top: 1.2rem; padding: 15px; border-radius: 18px; display: none; animation: slideUp 0.4s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -93,7 +88,9 @@
 <body>
 
 <div class="app-card">
+    <div id="gps-alert">📍 GPS desativado ou sem permissão. A busca pode não ser precisa.</div>
     <div id="status-conexao" class="online">● SISTEMA ONLINE</div>
+    
     <h1>⛽ Gasolina ou Etanol?</h1>
     
     <form id="calcForm" onsubmit="event.preventDefault(); calcular();">
@@ -136,18 +133,18 @@
     <div class="brand-section">
         <div class="section-label">Procura no GPS</div>
         <div class="grid-icons">
-            <button class="btn-icon-base gps-size" onclick="buscar('Posto', 'google')"><img src="maps.png" alt="Maps"></button>
-            <button class="btn-icon-base gps-size" onclick="buscar('Posto', 'waze')"><img src="waze.png" alt="Waze"></button>
+            <button class="btn-icon-base gps-size" onclick="verificarGps('Posto', 'google')"><img src="maps.png" alt="Maps"></button>
+            <button class="btn-icon-base gps-size" onclick="verificarGps('Posto', 'waze')"><img src="waze.png" alt="Waze"></button>
         </div>
     </div>
 
     <div class="brand-section">
         <div class="section-label">Postos por Bandeira</div>
         <div class="grid-icons">
-            <button class="btn-icon-base posto-size" onclick="buscar('Posto Ipiranga')"><img src="ipiranga.png" alt="Ipiranga"></button>
-            <button class="btn-icon-base posto-size" onclick="buscar('Posto Shell')"><img src="shell.png" alt="Shell"></button>
-            <button class="btn-icon-base posto-size" onclick="buscar('Posto Petrobras BR')"><img src="br.png" alt="BR"></button>
-            <button class="btn-icon-base posto-size" onclick="buscar('Rede Ceará')"><img src="ceara.png" alt="Ceará"></button>
+            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Ipiranga')"><img src="ipiranga.png" alt="Ipiranga"></button>
+            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Shell')"><img src="shell.png" alt="Shell"></button>
+            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Petrobras BR')"><img src="br.png" alt="BR"></button>
+            <button class="btn-icon-base posto-size" onclick="verificarGps('Rede Ceará')"><img src="ceara.png" alt="Ceará"></button>
         </div>
     </div>
 
@@ -159,10 +156,27 @@
 </div>
 
 <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(() => console.log("SW OK"));
+    // VERIFICAÇÃO DE GPS
+    function verificarGps(destino, tipo) {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                () => { buscar(destino, tipo); }, // Sucesso
+                (error) => {
+                    document.getElementById('gps-alert').style.display = 'block';
+                    setTimeout(() => { buscar(destino, tipo); }, 1500); // Tenta buscar mesmo assim após o aviso
+                }
+            );
+        } else {
+            buscar(destino, tipo);
+        }
     }
 
+    function buscar(m, t) {
+        const q = encodeURIComponent(m);
+        t === 'waze' ? window.location.href = `waze://?q=${q}&navigate=yes` : window.open(`https://www.google.com/maps/search/${q}`, '_blank');
+    }
+
+    // LÓGICA RESTANTE
     function atualizarStatus() {
         const s = document.getElementById('status-conexao');
         s.innerText = navigator.onLine ? "● SISTEMA ONLINE" : "○ MODO OFFLINE";
@@ -184,36 +198,21 @@
         c.value = (parseFloat(v) / 100).toFixed(2).replace(".", ",");
     }
 
-    function buscar(m, t) {
-        const q = encodeURIComponent(m);
-        if (t === 'waze') {
-            window.location.href = `waze://?q=${q}&navigate=yes`;
-        } else {
-            window.open(`https://www.google.com/maps/search/${q}`, '_blank');
-        }
-    }
-
     function calcular() {
         const e = parseFloat(document.getElementById('etanol').value.replace(",", "."));
         const g = parseFloat(document.getElementById('gasolina').value.replace(",", "."));
         const v = parseFloat(document.getElementById('valorAbast').value.replace(",", ".")) || 0;
         const r = parseFloat(document.getElementById('regra').value);
-        
         if (!e || !g) return;
-
         const rel = e / g;
         const resDiv = document.getElementById('resultado');
         resDiv.style.display = 'block';
-
         const escolha = rel <= r ? "Etanol" : "Gasolina";
         resDiv.className = escolha === "Etanol" ? 'melhor-etanol' : 'melhor-gasolina';
         document.getElementById('veredito').innerText = `Vá de ${escolha.toUpperCase()}!`;
         document.getElementById('detalhe').innerText = `Relação: ${(rel * 100).toFixed(1)}%`;
-        
         if (v > 0) {
             document.getElementById('litros-info').innerHTML = `R$ ${v.toFixed(2)} rende:<br><b>${(v/e).toFixed(2)}L</b> de Etanol ou <b>${(v/g).toFixed(2)}L</b> de Gasolina`;
-        } else {
-            document.getElementById('litros-info').innerHTML = "";
         }
         salvarNoHistorico(escolha, e, g);
     }
