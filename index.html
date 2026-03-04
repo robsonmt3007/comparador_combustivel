@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Combustível Pro v23.0</title>
+    <title>Combustível Pro v24.0</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
@@ -65,14 +65,14 @@
             content: ""; flex: 1; height: 1px; background: #333; margin: 0 10px;
         }
         
-        .grid-icons { display: flex; justify-content: space-around; align-items: center; gap: 10px; padding: 5px 0; }
+        .grid-icons { display: flex; justify-content: space-around; align-items: center; gap: 10px; padding: 5px 0; flex-wrap: wrap;}
         
         .btn-icon-base { background: transparent; border: none; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s; }
         .btn-icon-base:active { transform: scale(0.9); }
         .btn-icon-base img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5)); }
 
-        .gps-size { width: 90px; height: 90px; }
-        .posto-size { width: 70px; height: 70px; }
+        .gps-size { width: 100px; height: 100px; }
+        .posto-size { width: 75px; height: 75px; }
 
         #resultado { margin-top: 1.2rem; padding: 15px; border-radius: 18px; display: none; animation: slideUp 0.4s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -133,18 +133,18 @@
     <div class="brand-section">
         <div class="section-label">Procura no GPS</div>
         <div class="grid-icons">
-            <button class="btn-icon-base gps-size" onclick="verificarGps('Posto', 'google')"><img src="maps.png" alt="Maps"></button>
-            <button class="btn-icon-base gps-size" onclick="verificarGps('Posto', 'waze')"><img src="waze.png" alt="Waze"></button>
+            <button class="btn-icon-base gps-size" onclick="verificarGps('Posto de Combustível', 'google')"><img src="maps.png" alt="Maps"></button>
+            <button class="btn-icon-base gps-size" onclick="verificarGps('Posto de Combustível', 'waze')"><img src="waze.png" alt="Waze"></button>
         </div>
     </div>
 
     <div class="brand-section">
         <div class="section-label">Postos por Bandeira</div>
         <div class="grid-icons">
-            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Ipiranga')"><img src="ipiranga.png" alt="Ipiranga"></button>
-            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Shell')"><img src="shell.png" alt="Shell"></button>
-            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Petrobras BR')"><img src="br.png" alt="BR"></button>
-            <button class="btn-icon-base posto-size" onclick="verificarGps('Rede Ceará')"><img src="ceara.png" alt="Ceará"></button>
+            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Ipiranga', 'google')"><img src="ipiranga.png" alt="Ipiranga"></button>
+            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Shell', 'google')"><img src="shell.png" alt="Shell"></button>
+            <button class="btn-icon-base posto-size" onclick="verificarGps('Posto Petrobras BR', 'google')"><img src="br.png" alt="BR"></button>
+            <button class="btn-icon-base posto-size" onclick="verificarGps('Rede Ceará', 'google')"><img src="ceara.png" alt="Ceará"></button>
         </div>
     </div>
 
@@ -156,14 +156,18 @@
 </div>
 
 <script>
-    // VERIFICAÇÃO DE GPS
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(() => console.log("SW OK"));
+    }
+
+    // VERIFICAÇÃO DE GPS E BUSCA REFINADA
     function verificarGps(destino, tipo) {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
-                () => { buscar(destino, tipo); }, // Sucesso
-                (error) => {
+                () => { buscar(destino, tipo); },
+                () => {
                     document.getElementById('gps-alert').style.display = 'block';
-                    setTimeout(() => { buscar(destino, tipo); }, 1500); // Tenta buscar mesmo assim após o aviso
+                    setTimeout(() => { buscar(destino, tipo); }, 1200);
                 }
             );
         } else {
@@ -172,11 +176,22 @@
     }
 
     function buscar(m, t) {
-        const q = encodeURIComponent(m);
-        t === 'waze' ? window.location.href = `waze://?q=${q}&navigate=yes` : window.open(`https://www.google.com/maps/search/${q}`, '_blank');
+        // Refinamento: Se o destino não incluir a palavra "Posto", adicionamos para garantir
+        let termoFinal = m;
+        if (!m.includes("Combustível")) {
+            termoFinal = m + " Combustível";
+        }
+        
+        const q = encodeURIComponent(termoFinal);
+        if (t === 'waze') {
+            window.location.href = `waze://?q=${q}&navigate=yes`;
+        } else {
+            // URL Google Maps refinada para busca de estabelecimentos
+            window.open(`https://www.google.com/maps/search/${q}`, '_blank');
+        }
     }
 
-    // LÓGICA RESTANTE
+    // LÓGICA DE INTERFACE
     function atualizarStatus() {
         const s = document.getElementById('status-conexao');
         s.innerText = navigator.onLine ? "● SISTEMA ONLINE" : "○ MODO OFFLINE";
@@ -199,9 +214,12 @@
     }
 
     function calcular() {
-        const e = parseFloat(document.getElementById('etanol').value.replace(",", "."));
-        const g = parseFloat(document.getElementById('gasolina').value.replace(",", "."));
-        const v = parseFloat(document.getElementById('valorAbast').value.replace(",", ".")) || 0;
+        const eVal = document.getElementById('etanol').value.replace(",", ".");
+        const gVal = document.getElementById('gasolina').value.replace(",", ".");
+        const vVal = document.getElementById('valorAbast').value.replace(",", ".");
+        const e = parseFloat(eVal);
+        const g = parseFloat(gVal);
+        const v = parseFloat(vVal) || 0;
         const r = parseFloat(document.getElementById('regra').value);
         if (!e || !g) return;
         const rel = e / g;
