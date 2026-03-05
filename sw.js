@@ -1,4 +1,4 @@
-const CACHE_NAME = 'combustivel-pro-v31'; // Mude para v32 na próxima alteração
+const CACHE_NAME = 'combustivel-pro-v31.0'; // Mude para v32 na próxima alteração
 const ASSETS = [
   './',
   './index.html',
