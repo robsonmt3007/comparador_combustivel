@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -26,7 +26,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.6); width: 100%; max-width: 380px; text-align: center;
         }
 
-        /* Estilo do Status de Conexão */
         #status-conexao {
             font-size: 0.65rem; font-weight: bold; padding: 6px 14px; border-radius: 20px; 
             margin-bottom: 12px; display: inline-block; transition: all 0.4s ease;
@@ -39,7 +38,6 @@
         .input-container { margin-bottom: 0.8rem; text-align: left; }
         label { display: block; margin-bottom: 4px; font-size: 0.65rem; font-weight: bold; opacity: 0.7; }
         
-        /* Prevenção de Zoom no iOS (font-size 16px) */
         input, select {
             width: 100%; padding: 12px; background: var(--input-bg); border: 2px solid #3d3d3d;
             border-radius: 14px; font-size: 16px; color: #fff; text-align: center; box-sizing: border-box; outline: none;
@@ -68,7 +66,6 @@
         .gps-size { width: 100px; height: 100px; }
         .posto-size { width: 75px; height: 75px; }
 
-        /* Resultado com Transição Suave */
         #resultado { 
             margin-top: 1.2rem; padding: 20px; border-radius: 18px; 
             display: none; animation: slideUp 0.4s ease; color: #fff;
@@ -143,14 +140,23 @@
 </div>
 
 <script>
-    // Registro do Service Worker
+    // Registro do Service Worker com AUTO-REFRESH para atualizações
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').then(reg => console.log('SW ok'));
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                reg.onupdatefound = () => {
+                    const installingWorker = reg.installing;
+                    installingWorker.onstatechange = () => {
+                        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('Nova versão detectada! Atualizando...');
+                            window.location.reload();
+                        }
+                    };
+                };
+            });
         });
     }
 
-    // Lógica de Status Online/Offline Corrigida
     function atualizarStatus() {
         const s = document.getElementById('status-conexao');
         if (navigator.onLine) {
@@ -166,7 +172,7 @@
     window.addEventListener('offline', atualizarStatus);
 
     window.onload = () => {
-        atualizarStatus(); // Verifica no carregamento
+        atualizarStatus();
         const salva = localStorage.getItem('regraComb');
         if (salva) document.getElementById('regra').value = salva;
         mostrarHistorico();
@@ -229,4 +235,3 @@
 </script>
 </body>
 </html>
-    
